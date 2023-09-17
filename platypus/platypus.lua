@@ -19,6 +19,7 @@ end
 
 
 M.FALLING = hash("platypus_falling")
+M.COYOTE = hash("platypus_coyote")
 M.GROUND_CONTACT = hash("platypus_ground_contact")
 M.WALL_CONTACT = hash("platypus_wall_contact")
 M.WALL_JUMP = hash("platypus_wall_jump")
@@ -43,6 +44,7 @@ local ALLOWED_CONFIG_KEYS = {
 	gravity = true,
 	debug = true,
 	reparent = true,
+	coyote_time = true,
 }
 
 M.DIR_UP = 0x01
@@ -107,6 +109,7 @@ function M.create(config)
 		collisions = config.collisions,
 		debug = config.debug,
 		reparent = config.reparent,
+		coyote_time = config.coyote_time or 0,
 	}
 	-- get collision group set and convert to list for ray casts
 	local collision_groups_list = {}
@@ -118,6 +121,7 @@ function M.create(config)
 	local correction = vmath.vector3()
 
 	local state = {
+		coyote = false,
 		wall_contact = false,
 		wall_jump = false,
 		wall_slide = false,
@@ -257,12 +261,13 @@ function M.create(config)
 	-- @param power The power of the jump (ie how high)
 	function platypus.jump(power)
 		assert(power, "You must provide a jump takeoff power")
-		if state.ground_contact then
+		if state.ground_contact or state.coyote then
 			if config.reparent then
 				state.parent_id = nil
 				msg.post(".", "set_parent", { parent_id = nil })
 			end
 			state.ground_contact = false
+			state.coyote = false
 			platypus.velocity.y = power
 			msg.post("#", M.JUMP)
 		elseif state.wall_contact and platypus.allow_wall_jump then
@@ -346,6 +351,10 @@ function M.create(config)
 		return result
 	end
 
+	local function coyote_stop()
+		state.coyote = false
+	end
+	
 	local function handle_collisions(raycast_origin)
 		local offset = vmath.vector3()
 		local previous_ground_contact = state.ground_contact
@@ -433,6 +442,7 @@ function M.create(config)
 		-- lost ground contact
 		if config.reparent and previous_ground_contact and not state.ground_contact then
 			state.parent_id = nil
+			coyote_timer = timer.delay(platypus.coyote_time, false, coyote_stop)
 			msg.post(".", "set_parent", { parent_id = nil })
 		end
 
@@ -443,6 +453,8 @@ function M.create(config)
 			state.falling = false
 			state.double_jumping = false
 			state.wall_jump = false
+			state.coyote = true
+			coyote_timer = nil
 			platypus.abort_wall_slide()
 			msg.post("#", M.GROUND_CONTACT)
 		end
