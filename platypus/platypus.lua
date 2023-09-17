@@ -45,6 +45,7 @@ local ALLOWED_CONFIG_KEYS = {
 	debug = true,
 	reparent = true,
 	coyote_time = true,
+	jump_buffer_time = true
 }
 
 M.DIR_UP = 0x01
@@ -110,6 +111,7 @@ function M.create(config)
 		debug = config.debug,
 		reparent = config.reparent,
 		coyote_time = config.coyote_time or 0,
+		buffer_time = config.jump_buffer_time or 0,
 	}
 	-- get collision group set and convert to list for ray casts
 	local collision_groups_list = {}
@@ -129,6 +131,7 @@ function M.create(config)
 		rays = {},
 		down_rays = {},
 		parent_id = nil,
+		buffer = 0
 	}
 
 	-- movement based on user input
@@ -257,6 +260,11 @@ function M.create(config)
 		state.wall_slide = false
 	end
 
+
+	local function buffer_stop()
+		state.buffer = 0
+	end
+
 	--- Try to make the game object jump.
 	-- @param power The power of the jump (ie how high)
 	function platypus.jump(power)
@@ -280,6 +288,9 @@ function M.create(config)
 			platypus.velocity.y = platypus.velocity.y + power
 			state.double_jumping = true
 			msg.post("#", M.DOUBLE_JUMP)
+		elseif platypus.buffer_time > 0 then 
+			state.buffer = power
+			timer.delay(platypus.buffer_time, false, buffer_stop)
 		end
 	end
 
@@ -354,7 +365,7 @@ function M.create(config)
 	local function coyote_stop()
 		state.coyote = false
 	end
-	
+
 	local function handle_collisions(raycast_origin)
 		local offset = vmath.vector3()
 		local previous_ground_contact = state.ground_contact
@@ -457,6 +468,10 @@ function M.create(config)
 			coyote_timer = nil
 			platypus.abort_wall_slide()
 			msg.post("#", M.GROUND_CONTACT)
+			if state.buffer > 0 then
+				platypus.jump(state.buffer)
+				state.buffer = 0
+			end
 		end
 
 		-- gained wall contact
