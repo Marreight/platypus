@@ -148,6 +148,9 @@ The ```config``` table can have the following values:
 * `allow_wall_slide` (boolean) - If true - wall slide is allowed (by pushing forward on a wall while falling) (OPTIONAL)
 * `wall_slide_velocity` (number) - "gravity" that applies when sliding down the wall (generally should be lower than overall gravity, to simulate sliding) (OPTIONAL)
 
+* `coyote_time` (number) - seconds in which the game object can still jump without touching the ground while falling. (OPTIONAL)
+* `jump_buffer_time` (number) - seconds platypus remembers an jump command. executes the jump at the first grounded frame. (OPTIONAL)
+
 The `collisions` table can have the following values:
 
 * `groups` (table) - List with collision groups. Used when separating collisions.
