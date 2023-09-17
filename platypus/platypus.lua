@@ -477,6 +477,10 @@ function M.create(config)
 		-- gained wall contact
 		if state.wall_contact and not previous_wall_contact then
 			msg.post("#", M.WALL_CONTACT)
+			if state.buffer > 0 and platypus.allow_wall_jump then
+				platypus.jump(state.buffer)
+				state.buffer = 0
+			end
 		end
 
 		return offset
