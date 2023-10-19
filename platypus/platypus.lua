@@ -260,11 +260,6 @@ function M.create(config)
 		state.wall_slide = false
 	end
 
-
-	local function buffer_stop()
-		state.buffer = 0
-	end
-
 	--- Try to make the game object jump.
 	-- @param power The power of the jump (ie how high)
 	function platypus.jump(power)
@@ -290,7 +285,9 @@ function M.create(config)
 			msg.post("#", M.DOUBLE_JUMP)
 		elseif platypus.buffer_time > 0 then 
 			state.buffer = power
-			timer.delay(platypus.buffer_time, false, buffer_stop)
+			timer.delay(platypus.buffer_time, false, function()
+				state.buffer = 0
+			end)
 		end
 	end
 
@@ -360,10 +357,6 @@ function M.create(config)
 			end
 		end
 		return result
-	end
-
-	local function coyote_stop()
-		state.coyote = false
 	end
 
 	local function handle_collisions(raycast_origin)
@@ -453,7 +446,7 @@ function M.create(config)
 		-- lost ground contact
 		if config.reparent and previous_ground_contact and not state.ground_contact then
 			state.parent_id = nil
-			coyote_timer = timer.delay(platypus.coyote_time, false, coyote_stop)
+			coyote_timer = timer.delay(platypus.coyote_time, false, function() state.coyote = false end)
 			msg.post(".", "set_parent", { parent_id = nil })
 		end
 

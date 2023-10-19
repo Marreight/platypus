@@ -43,7 +43,7 @@ function init(self)
 		allow_wall_jump = true,
 		allow_wall_slide = true,
 		wall_slide_gravity = -50,
-		coyote_time = 0.5,
+		coyote_time = 0.2,
 		jump_buffer_time = 0.2,
 		debug = true,
 	})
