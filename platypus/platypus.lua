@@ -19,7 +19,6 @@ end
 
 
 M.FALLING = hash("platypus_falling")
-M.COYOTE = hash("platypus_coyote")
 M.GROUND_CONTACT = hash("platypus_ground_contact")
 M.WALL_CONTACT = hash("platypus_wall_contact")
 M.WALL_JUMP = hash("platypus_wall_jump")
