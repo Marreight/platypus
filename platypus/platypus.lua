@@ -446,7 +446,9 @@ function M.create(config)
 		-- lost ground contact
 		if config.reparent and previous_ground_contact and not state.ground_contact then
 			state.parent_id = nil
-			coyote_timer = timer.delay(platypus.coyote_time, false, function() state.coyote = false end)
+			if platypus.coyote_time > 0 then
+				coyote_timer = timer.delay(platypus.coyote_time, false, function() state.coyote = false end)
+			end
 			msg.post(".", "set_parent", { parent_id = nil })
 		end
 
