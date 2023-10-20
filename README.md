@@ -149,7 +149,7 @@ The ```config``` table can have the following values:
 * `wall_slide_velocity` (number) - "gravity" that applies when sliding down the wall (generally should be lower than overall gravity, to simulate sliding) (OPTIONAL)
 
 * `coyote_time` (number) - seconds in which the game object can still jump without touching the ground. (OPTIONAL)
-* `jump_buffer_time` (number) - seconds platypus remembers an jump command. executes the jump at the first grounded frame. (OPTIONAL)
+* `jump_buffer_time` (number) - seconds platypus remembers a jump command. It will execute the jump at the first grounded frame. (OPTIONAL)
 
 The `collisions` table can have the following values:
 
