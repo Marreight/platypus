@@ -451,7 +451,7 @@ function M.create(config)
 		if config.reparent and previous_ground_contact and not state.ground_contact then
 			state.parent_id = nil
 			if platypus.coyote_time > 0 then
-				coyote_timer = timer.delay(platypus.coyote_time * 0.001, false, function() state.coyote = false end)
+				timer.delay(platypus.coyote_time * 0.001, false, function() state.coyote = false end)
 			end
 			msg.post(".", "set_parent", { parent_id = nil })
 		end
@@ -464,7 +464,6 @@ function M.create(config)
 			state.double_jumping = false
 			state.wall_jump = false
 			state.coyote = true
-			coyote_timer = nil
 			platypus.abort_wall_slide()
 			msg.post("#", M.GROUND_CONTACT)
 			if state.buffer > 0 then

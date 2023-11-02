@@ -139,7 +139,7 @@ function on_message(self, message_id, message, sender)
 	elseif message_id == platypus.FALLING then
 		print("Falling")
 	elseif message_id == platypus.BUFFERED_JUMP then
-		print("Jump buffer used")
+		print("Buffered jump")
 	elseif message_id == platypus.COYOTE then
 		print("Coyote time")
 	elseif message_id == platypus.WALL_JUMP then
