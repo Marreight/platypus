@@ -43,8 +43,8 @@ function init(self)
 		allow_wall_jump = true,
 		allow_wall_slide = true,
 		wall_slide_gravity = -50,
-		coyote_time = 0.2,
-		jump_buffer_time = 0.1,
+		coyote_time = 200,
+		jump_buffer_time = 100,
 		debug = true,
 	})
 	self.current_animation = nil
@@ -138,6 +138,10 @@ function on_message(self, message_id, message, sender)
 		print("Wall contact")
 	elseif message_id == platypus.FALLING then
 		print("Falling")
+	elseif message_id == platypus.BUFFERED_JUMP then
+		print("Jump buffer used")
+	elseif message_id == platypus.COYOTE then
+		print("Coyote time")
 	elseif message_id == platypus.WALL_JUMP then
 		sprite.set_hflip("#sprite", self.platypus.velocity.x < 0)
 	elseif message_id == hash("onscreen") then

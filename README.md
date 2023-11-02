@@ -147,9 +147,8 @@ The ```config``` table can have the following values:
 * `const_wall_jump` (boolean) - If true - prevents user from changing velocity while bounced from a wall. Set to false by default, to keep legacy behavior. (OPTIONAL)
 * `allow_wall_slide` (boolean) - If true - wall slide is allowed (by pushing forward on a wall while falling) (OPTIONAL)
 * `wall_slide_velocity` (number) - "gravity" that applies when sliding down the wall (generally should be lower than overall gravity, to simulate sliding) (OPTIONAL)
-
-* `coyote_time` (number) - seconds in which the game object can still jump without touching the ground. (OPTIONAL)
-* `jump_buffer_time` (number) - seconds platypus remembers a jump command. It will execute the jump at the first grounded frame. (OPTIONAL)
+* `coyote_time` (number) - miliseconds in which the game object can still jump without touching the ground. (OPTIONAL)
+* `jump_buffer_time` (number) - miliseconds platypus remembers a jump command. It will execute the jump at the first grounded frame. (OPTIONAL)
 
 The `collisions` table can have the following values:
 
@@ -329,6 +328,11 @@ Sent when the game object performs a double jump
 ### platypus.WALL_SLIDE
 Sent when the game object starts sliding down a wall
 
+### platypus.BUFFERING_JUMP
+Sent when platypus performs a bufferd jump.
+
+### platypus.COYOTE
+Sent when the game object jumps during coyote time.
 
 # Credits
 * Grotto Escape tiles - Ansimuz (https://ansimuz.itch.io/grotto-escape-game-art-pack)

@@ -19,13 +19,14 @@ end
 
 
 M.FALLING = hash("platypus_falling")
-M.COYOTE = hash("platypus_coyote")
 M.GROUND_CONTACT = hash("platypus_ground_contact")
 M.WALL_CONTACT = hash("platypus_wall_contact")
 M.WALL_JUMP = hash("platypus_wall_jump")
 M.WALL_SLIDE = hash("platypus_wall_slide")
 M.DOUBLE_JUMP = hash("platypus_double_jump")
 M.JUMP = hash("platypus_jump")
+M.BUFFERED_JUMP =  hash("platypus_buffered_jump")
+M.COYOTE = hash("platypus_coyote")
 
 M.SEPARATION_RAYS = hash("separation_rays")
 M.SEPARATION_SHAPES = hash("separation_shapes")
@@ -265,6 +266,9 @@ function M.create(config)
 	function platypus.jump(power)
 		assert(power, "You must provide a jump takeoff power")
 		if state.ground_contact or state.coyote then
+			if state.coyote and not state.ground_contact then
+				msg.post("#", M.COYOTE)
+			end
 			if config.reparent then
 				state.parent_id = nil
 				msg.post(".", "set_parent", { parent_id = nil })
@@ -285,7 +289,7 @@ function M.create(config)
 			msg.post("#", M.DOUBLE_JUMP)
 		elseif platypus.buffer_time > 0 then 
 			state.buffer = power
-			timer.delay(platypus.buffer_time, false, function()
+			timer.delay(platypus.buffer_time  * 0.001, false, function()
 				state.buffer = 0
 			end)
 		end
@@ -447,7 +451,7 @@ function M.create(config)
 		if config.reparent and previous_ground_contact and not state.ground_contact then
 			state.parent_id = nil
 			if platypus.coyote_time > 0 then
-				coyote_timer = timer.delay(platypus.coyote_time, false, function() state.coyote = false end)
+				coyote_timer = timer.delay(platypus.coyote_time * 0.001, false, function() state.coyote = false end)
 			end
 			msg.post(".", "set_parent", { parent_id = nil })
 		end
@@ -464,6 +468,7 @@ function M.create(config)
 			platypus.abort_wall_slide()
 			msg.post("#", M.GROUND_CONTACT)
 			if state.buffer > 0 then
+				msg.post('#', M.BUFFERED_JUMP)
 				platypus.jump(state.buffer)
 				state.buffer = 0
 			end
