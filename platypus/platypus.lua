@@ -132,12 +132,15 @@ function M.create(config)
 		rays = {},
 		down_rays = {},
 		parent_id = nil,
-		buffer = 0
+		buffer = false
 	}
-
+	
 	-- movement based on user input
 	local movement = vmath.vector3()
-
+	--help variable for jump_buffering and coyote_time
+	local coyote = false
+	local buffer = false
+	
 	local BOUNDS_BOTTOM, BOUNDS_TOP, BOUNDS_LEFT, BOUNDS_RIGHT = 0,0,0,0
 
 	local RAY_CAST_LEFT_ID = 1
@@ -275,6 +278,7 @@ function M.create(config)
 			end
 			state.ground_contact = false
 			state.coyote = false
+			coyote = false
 			platypus.velocity.y = power
 			msg.post("#", M.JUMP)
 		elseif state.wall_contact and platypus.allow_wall_jump then
@@ -287,11 +291,14 @@ function M.create(config)
 			platypus.velocity.y = platypus.velocity.y + power
 			state.double_jumping = true
 			msg.post("#", M.DOUBLE_JUMP)
-		elseif platypus.buffer_time > 0 then 
-			state.buffer = power
-			timer.delay(platypus.buffer_time  * 0.001, false, function()
-				state.buffer = 0
-			end)
+		elseif platypus.buffer_time > 0 then
+			if state.buffer then
+				buffer = false
+			end
+			state.buffer = true
+			buffer = { power = power, timer = timer.delay(platypus.buffer_time  * 0.001, false, function()
+				state.buffer = false
+			end)}
 		end
 	end
 
@@ -451,7 +458,7 @@ function M.create(config)
 		if config.reparent and previous_ground_contact and not state.ground_contact then
 			state.parent_id = nil
 			if platypus.coyote_time > 0 then
-				timer.delay(platypus.coyote_time * 0.001, false, function() state.coyote = false end)
+				coyote = timer.delay(platypus.coyote_time * 0.001, false, function() state.coyote = false end)
 			end
 			msg.post(".", "set_parent", { parent_id = nil })
 		end
@@ -466,19 +473,23 @@ function M.create(config)
 			state.coyote = true
 			platypus.abort_wall_slide()
 			msg.post("#", M.GROUND_CONTACT)
-			if state.buffer > 0 then
+			if coyote then
+				timer.cancel(coyote)
+				coyote = false
+			end
+			if state.buffer then
 				msg.post('#', M.BUFFERED_JUMP)
-				platypus.jump(state.buffer)
-				state.buffer = 0
+				platypus.jump(buffer.power)
+				state.buffer = false
 			end
 		end
 
 		-- gained wall contact
 		if state.wall_contact and not previous_wall_contact then
 			msg.post("#", M.WALL_CONTACT)
-			if state.buffer > 0 and platypus.allow_wall_jump then
-				platypus.jump(state.buffer)
-				state.buffer = 0
+			if state.buffer and platypus.allow_wall_jump then
+				platypus.jump(buffer.power)
+				state.buffer = false
 			end
 		end
 
